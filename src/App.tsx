@@ -1,34 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import React, { Children, FC, useState, useCallback, useMemo } from 'react'
 import './App.css'
+import { List } from './components/List';
+import { useDictionary } from './hooks/useDictionary'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const dictionary = useDictionary();
+  const [searchQuery, setSearchQuery] = useState('');
 
+  const handleSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  }, []);
+
+  const filteredDictionary = React.useMemo(() => {
+    if (!searchQuery) {
+      return dictionary;
+    }
+    const lowerCaseQuery = searchQuery.toLowerCase();
+    return dictionary.filter(word => word.toLowerCase().includes(lowerCaseQuery));
+  }, [dictionary, searchQuery]);
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="app">
+      <div className="header">
+        <div>
+          <img src="https://storage.googleapis.com/coderpad_project_template_assets/coderpad_logo.svg" />
+        </div>
+        <div>
+          <img src="https://storage.googleapis.com/coderpad_project_template_assets/react.svg" />
+          <span>React Virtualized List</span>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      <div className="content">
+        <input
+            type="text"
+            placeholder="Search words..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
+        <List items={filteredDictionary} />
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
   )
 }
 
